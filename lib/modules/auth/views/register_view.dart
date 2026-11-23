@@ -196,7 +196,7 @@ class RegisterView extends GetView<AuthController> {
                                         ),
                                         )
                                     : const Text(
-                                        'Masuk',
+                                        'Daftar Sekarang',
                                         style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,

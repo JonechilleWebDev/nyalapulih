@@ -138,7 +138,7 @@ class AuthController extends GetxController {
         'Selamat datang, ${user.name}!',
       );
 
-      // Navigasi ke Home akan ditambahkan di tahap berikutnya.
+      Get.offAllNamed(AppRoutes.home);
     } catch (e) {
       Get.snackbar('Error', 'Terjadi kesalahan: $e');
     } finally {
