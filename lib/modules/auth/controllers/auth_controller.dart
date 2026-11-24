@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../data/models/user_model.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../app/routes/app_routes.dart';
 
@@ -10,20 +9,24 @@ class AuthController extends GetxController {
 
   AuthController(this.repository);
 
+  // Text Controllers
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final nameController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
+  // Form Keys
   final loginFormKey = GlobalKey<FormState>();
   final registerFormKey = GlobalKey<FormState>();
 
+  // Reactive States
   final isLoginPasswordHidden = true.obs;
   final isRegisterPasswordHidden = true.obs;
   final isConfirmPasswordHidden = true.obs;
 
   final isLoading = false.obs;
 
+  // Toggle Password
   void toggleLoginPassword() =>
       isLoginPasswordHidden.toggle();
 
@@ -33,6 +36,7 @@ class AuthController extends GetxController {
   void toggleConfirmPassword() =>
       isConfirmPasswordHidden.toggle();
 
+  // VALIDATION
   String? validateName(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Nama tidak boleh kosong';
@@ -76,29 +80,24 @@ class AuthController extends GetxController {
     return null;
   }
 
+  // REGISTER
   Future<void> register() async {
-    if (!registerFormKey.currentState!.validate()) return;
+    if (!registerFormKey.currentState!.validate()) {
+      return;
+    }
 
     isLoading.value = true;
 
     try {
-      final user = UserModel(
-        id: DateTime.now().microsecondsSinceEpoch.toString(),
+      await repository.register(
         name: nameController.text.trim(),
         email: emailController.text.trim(),
         password: passwordController.text,
       );
 
-      final success = await repository.register(user);
-
-      if (!success) {
-        Get.snackbar('Gagal', 'Email sudah terdaftar');
-        return;
-      }
-
       Get.snackbar(
         'Berhasil',
-        'Akun berhasil dibuat. Silakan login.',
+        'Registrasi akun berhasil. Silakan login.',
       );
 
       nameController.clear();
@@ -108,39 +107,43 @@ class AuthController extends GetxController {
 
       Get.offNamed(AppRoutes.login);
     } catch (e) {
-      Get.snackbar('Error', 'Terjadi kesalahan: $e');
+      Get.snackbar(
+        'Registrasi Gagal',
+        e.toString().replaceFirst('Exception: ', ''),
+      );
     } finally {
       isLoading.value = false;
     }
   }
 
+  // LOGIN
   Future<void> login() async {
-    if (!loginFormKey.currentState!.validate()) return;
+    if (!loginFormKey.currentState!.validate()) {
+      return;
+    }
 
     isLoading.value = true;
 
     try {
       final user = await repository.login(
-        emailController.text.trim(),
-        passwordController.text,
+        email: emailController.text.trim(),
+        password: passwordController.text,
       );
 
-      if (user == null) {
-        Get.snackbar(
-          'Login Gagal',
-          'Email atau password salah.',
-        );
-        return;
-      }
-
       Get.snackbar(
-        'Berhasil',
+        'Login Berhasil',
         'Selamat datang, ${user.name}!',
       );
 
+      emailController.clear();
+      passwordController.clear();
+
       Get.offAllNamed(AppRoutes.home);
     } catch (e) {
-      Get.snackbar('Error', 'Terjadi kesalahan: $e');
+      Get.snackbar(
+        'Login Gagal',
+        e.toString().replaceFirst('Exception: ', ''),
+      );
     } finally {
       isLoading.value = false;
     }
@@ -152,6 +155,7 @@ class AuthController extends GetxController {
     passwordController.dispose();
     nameController.dispose();
     confirmPasswordController.dispose();
+
     super.onClose();
   }
 }

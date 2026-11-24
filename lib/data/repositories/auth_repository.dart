@@ -6,28 +6,37 @@ class AuthRepository {
 
   AuthRepository(this.provider);
 
-  Future<bool> register(UserModel user) {
-    return provider.register(user);
+  Future<void> register({
+    required String name,
+    required String email,
+    required String password,
+  }) {
+    return provider.register(
+      name: name,
+      email: email,
+      password: password,
+    );
   }
 
-  Future<UserModel?> login(
-    String email,
-    String password,
-  ) async {
-    final user = provider.login(email, password);
-
-    if (user != null) {
-      await provider.saveSession(user);
-    }
-
-    return user;
+  Future<UserModel> login({
+    required String email,
+    required String password,
+  }) {
+    return provider.login(
+      email: email,
+      password: password,
+    );
   }
 
-  UserModel? getSession() {
-    return provider.getSession();
+  Future<UserModel> getProfile() {
+    return provider.getProfile();
   }
 
   Future<void> logout() {
     return provider.logout();
+  }
+
+  bool isLoggedIn() {
+    return provider.isLoggedIn();
   }
 }
