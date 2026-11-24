@@ -115,6 +115,7 @@ CREATE TABLE users (
     name VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
+    role ENUM('volunteer', 'admin') NOT NULL DEFAULT 'volunteer',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
@@ -405,6 +406,42 @@ Agar pengembangan backend tetap teratur:
 - [ ] Pengujian menggunakan Postman
 - [ ] Integrasi Flutter
 - [ ] Integrasi Website
+
+## 13. Sistem Role Pengguna
+
+NyalaPulih menggunakan sistem Role-Based Access Control (RBAC) untuk membedakan hak akses pengguna.
+
+| Role | Keterangan |
+|---|---|
+| `volunteer` | Pengguna yang terdaftar sebagai sukarelawan |
+| `admin` | Pengguna dengan hak akses administrator |
+
+### Ketentuan Role
+
+- Setiap pengguna yang mendaftar melalui endpoint Register otomatis mendapatkan role `volunteer`.
+- Role `admin` tidak dapat dipilih melalui registrasi publik.
+- Penetapan administrator dilakukan oleh administrator yang berwenang atau melalui pengaturan database selama tahap pengembangan.
+- Setiap endpoint yang membutuhkan hak administrator wajib melakukan validasi role di backend.
+
+### Mengubah Role Pengguna
+
+Untuk kebutuhan pengembangan, role pengguna dapat diubah melalui query SQL:
+
+```sql
+UPDATE users
+SET role = 'admin'
+WHERE email = 'admin@nyalapulih.com';
+```
+
+Mengembalikan akun menjadi sukarelawan:
+
+```sql
+UPDATE users
+SET role = 'volunteer'
+WHERE email = 'admin@nyalapulih.com';
+```
+
+Role pengguna juga dikirimkan dalam respons Login agar aplikasi Flutter dan website dapat menyesuaikan akses berdasarkan peran pengguna.
 
 ---
 

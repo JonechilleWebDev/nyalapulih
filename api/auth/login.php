@@ -41,10 +41,9 @@ try {
     $db = $database->connect();
 
     $query = $db->prepare(
-        "SELECT id, name, email, password
-         FROM users
-         WHERE email = :email
-         LIMIT 1"
+        "SELECT id, name, email, password, role
+        FROM users
+        WHERE email = :email"
     );
 
     $query->execute(["email" => $email]);
@@ -91,7 +90,12 @@ try {
         "message" => "Login berhasil",
         "token" => $token,
         "expires_at" => $expiresAt,
-        "user" => $user
+        "user" => [
+            "id" => $user["id"],
+            "name" => $user["name"],
+            "email" => $user["email"],
+            "role" => $user["role"]
+        ]
     ]);
 
 } catch (PDOException $e) {

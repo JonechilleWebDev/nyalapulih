@@ -80,8 +80,8 @@ try {
     );
 
     $query = $db->prepare(
-        "INSERT INTO users (name, email, password)
-         VALUES (:name, :email, :password)"
+        "INSERT INTO users (name, email, password, role)
+        VALUES (:name, :email, :password, 'volunteer')"
     );
 
     $query->execute([
@@ -98,7 +98,8 @@ try {
         "data" => [
             "id" => $db->lastInsertId(),
             "name" => $name,
-            "email" => $email
+            "email" => $email,
+            "role" => "volunteer"
         ]
     ]);
 
