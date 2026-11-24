@@ -25,7 +25,7 @@ class NyalaPulihApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       initialBinding: AuthBinding(),
-      initialRoute: AppRoutes.login,
+      initialRoute: AppRoutes.home,
       getPages: AppPages.routes,
     );
   }

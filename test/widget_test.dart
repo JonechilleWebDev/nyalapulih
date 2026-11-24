@@ -1,30 +1,40 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_ui/material_ui.dart';
-
-import 'package:nyalapulih/main.dart';
+import 'package:get/get.dart';
+import 'package:nyalapulih/modules/home/bindings/home_binding.dart';
+import 'package:nyalapulih/modules/home/views/home_view.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('navigation shows and switches between all tabs', (tester) async {
+    await tester.pumpWidget(
+      GetMaterialApp(initialBinding: HomeBinding(), home: const HomeView()),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('Home'), findsNWidgets(2));
+    expect(find.text('Profil'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await tester.tap(find.text('Jelajahi').last);
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Temukan hal baru yang mendukung perjalanan pulihmu.'),
+      findsOneWidget,
+    );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    await tester.tap(find.text('Aktivitas').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Aktivitasmu akan muncul di sini.'), findsOneWidget);
+
+    await tester.tap(find.text('Profil').last);
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Kelola informasi dan pengaturan akun Anda.'),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.text('Home').last);
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Mulai perjalanan pulihmu dari satu langkah kecil hari ini.'),
+      findsOneWidget,
+    );
   });
 }
