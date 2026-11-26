@@ -1,7 +1,6 @@
 <?php
 header("Content-Type: application/json; charset=UTF-8");
 
-require_once __DIR__ . '/../cors.php';
 require_once __DIR__ . "/../../config/database.php";
 require_once __DIR__ . "/../../middleware/auth_middleware.php";
 
@@ -17,17 +16,25 @@ if ($_SERVER["REQUEST_METHOD"] !== "GET") {
 try {
     $db = (new Database())->connect();
 
-    // Mengambil user berdasarkan token login
     $user = authenticateUser($db);
 
     $query = $db->prepare(
-        "SELECT id, name, email, role, created_at
+        "SELECT
+            id_user,
+            name,
+            email,
+            role,
+            organization,
+            created_at
          FROM users
-         WHERE id = :id"
+         WHERE id_user = :id_user"
     );
 
-    $query->execute(["id" => $user["id"]]);
-    $profile = $query->fetch();
+    $query->execute([
+        "id_user" => $user["id_user"]
+    ]);
+
+    $profile = $query->fetch(PDO::FETCH_ASSOC);
 
     if (!$profile) {
         http_response_code(404);

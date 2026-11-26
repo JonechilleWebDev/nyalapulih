@@ -1,8 +1,6 @@
 <?php
-
 header("Content-Type: application/json; charset=UTF-8");
 
-require_once __DIR__ . '/../cors.php';
 require_once __DIR__ . "/../../config/database.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
@@ -28,12 +26,13 @@ if (!is_array($data)) {
 $name = trim($data["name"] ?? "");
 $email = trim($data["email"] ?? "");
 $password = $data["password"] ?? "";
+$organization = trim($data["organization"] ?? "");
 
 if ($name === "" || $email === "" || $password === "") {
     http_response_code(400);
     echo json_encode([
         "success" => false,
-        "message" => "Semua field wajib diisi"
+        "message" => "Nama, email, dan password wajib diisi"
     ]);
     exit;
 }
@@ -57,13 +56,11 @@ if (strlen($password) < 8) {
 }
 
 try {
-    $database = new Database();
-    $db = $database->connect();
+    $db = (new Database())->connect();
 
     $check = $db->prepare(
-        "SELECT id FROM users WHERE email = :email"
+        "SELECT id_user FROM users WHERE email = :email"
     );
-
     $check->execute(["email" => $email]);
 
     if ($check->fetch()) {
@@ -81,32 +78,38 @@ try {
     );
 
     $query = $db->prepare(
-        "INSERT INTO users (name, email, password, role)
-        VALUES (:name, :email, :password, 'volunteer')"
+        "INSERT INTO users
+        (name, email, password, role, organization)
+        VALUES
+        (:name, :email, :password, 'relawan', :organization)"
     );
 
     $query->execute([
         "name" => $name,
         "email" => $email,
-        "password" => $hashedPassword
+        "password" => $hashedPassword,
+        "organization" => $organization !== ""
+            ? $organization
+            : null
     ]);
 
     http_response_code(201);
-
     echo json_encode([
         "success" => true,
         "message" => "Registrasi berhasil",
         "data" => [
-            "id" => $db->lastInsertId(),
+            "id_user" => $db->lastInsertId(),
             "name" => $name,
             "email" => $email,
-            "role" => "volunteer"
+            "role" => "relawan",
+            "organization" => $organization ?: null
         ]
     ]);
 
 } catch (PDOException $e) {
-    http_response_code(500);
+    error_log("Register Error: " . $e->getMessage());
 
+    http_response_code(500);
     echo json_encode([
         "success" => false,
         "message" => "Terjadi kesalahan server"

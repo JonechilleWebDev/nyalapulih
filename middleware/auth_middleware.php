@@ -2,17 +2,16 @@
 
 function authenticateUser(PDO $db): array
 {
-    // Ambil Authorization Header
     $authorization = $_SERVER["HTTP_AUTHORIZATION"] ?? "";
 
     if (empty($authorization) && function_exists("getallheaders")) {
         $headers = getallheaders();
+
         $authorization = $headers["Authorization"]
             ?? $headers["authorization"]
             ?? "";
     }
 
-    // Validasi Bearer Token
     if (!preg_match("/^Bearer\s+(\S+)$/i", $authorization, $matches)) {
         http_response_code(401);
         echo json_encode([
@@ -22,16 +21,20 @@ function authenticateUser(PDO $db): array
         exit;
     }
 
-    $token = $matches[1];
-    $tokenHash = hash("sha256", $token);
+    $tokenHash = hash("sha256", $matches[1]);
 
-    // Cari token yang masih berlaku
     $query = $db->prepare(
-        "SELECT users.id, users.name, users.email, users.role
+        "SELECT
+            users.id_user,
+            users.name,
+            users.email,
+            users.role,
+            users.organization
          FROM auth_tokens
-         INNER JOIN users ON users.id = auth_tokens.user_id
+         INNER JOIN users
+            ON users.id_user = auth_tokens.user_id
          WHERE auth_tokens.token_hash = :token_hash
-         AND auth_tokens.expires_at > NOW()
+           AND auth_tokens.expires_at > NOW()
          LIMIT 1"
     );
 

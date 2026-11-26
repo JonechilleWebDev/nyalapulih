@@ -1,8 +1,6 @@
 <?php
-
 header("Content-Type: application/json; charset=UTF-8");
 
-require_once __DIR__ . '/../cors.php';
 require_once __DIR__ . "/../../config/database.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
@@ -38,48 +36,46 @@ if ($email === "" || $password === "") {
 }
 
 try {
-    $database = new Database();
-    $db = $database->connect();
+    $db = (new Database())->connect();
 
     $query = $db->prepare(
-        "SELECT id, name, email, password, role
-        FROM users
-        WHERE email = :email"
+        "SELECT id_user, name, email, password,
+                role, organization
+         FROM users
+         WHERE email = :email
+         LIMIT 1"
     );
 
     $query->execute(["email" => $email]);
-
-    $user = $query->fetch();
+    $user = $query->fetch(PDO::FETCH_ASSOC);
 
     if (!$user || !password_verify($password, $user["password"])) {
         http_response_code(401);
-
         echo json_encode([
             "success" => false,
             "message" => "Email atau password salah"
         ]);
-
         exit;
     }
 
-    // Generate token
+    // Buat token
     $token = bin2hex(random_bytes(32));
     $tokenHash = hash("sha256", $token);
 
-    // Masa berlaku token: 7 hari
     $expiresAt = date(
         "Y-m-d H:i:s",
-        time() + (7 * 24 * 60 * 60)
+        strtotime("+1 month")
     );
 
-    $saveToken = $db->prepare(
+    // Simpan hash token
+    $insert = $db->prepare(
         "INSERT INTO auth_tokens
-         (user_id, token_hash, expires_at)
-         VALUES (:user_id, :token_hash, :expires_at)"
+        (user_id, token_hash, expires_at)
+        VALUES (:user_id, :token_hash, :expires_at)"
     );
 
-    $saveToken->execute([
-        "user_id" => $user["id"],
+    $insert->execute([
+        "user_id" => $user["id_user"],
         "token_hash" => $tokenHash,
         "expires_at" => $expiresAt
     ]);
@@ -91,17 +87,13 @@ try {
         "message" => "Login berhasil",
         "token" => $token,
         "expires_at" => $expiresAt,
-        "user" => [
-            "id" => $user["id"],
-            "name" => $user["name"],
-            "email" => $user["email"],
-            "role" => $user["role"]
-        ]
+        "data" => $user
     ]);
 
 } catch (PDOException $e) {
-    http_response_code(500);
+    error_log("Login Error: " . $e->getMessage());
 
+    http_response_code(500);
     echo json_encode([
         "success" => false,
         "message" => "Terjadi kesalahan server"

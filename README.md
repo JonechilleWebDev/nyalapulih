@@ -111,12 +111,13 @@ Buat tabel pengguna:
 
 ```sql
 CREATE TABLE users (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(150) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    role ENUM('volunteer', 'admin') NOT NULL DEFAULT 'volunteer',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  id_user INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(120) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  role ENUM('relawan', 'admin') NOT NULL DEFAULT 'relawan',
+  organization VARCHAR(120) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
@@ -124,13 +125,13 @@ Buat tabel token autentikasi:
 
 ```sql
 CREATE TABLE auth_tokens (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT UNSIGNED NOT NULL,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
     token_hash CHAR(64) NOT NULL UNIQUE,
     expires_at DATETIME NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id)
-        REFERENCES users(id)
+        REFERENCES users(id_user)
         ON DELETE CASCADE
 );
 ```
