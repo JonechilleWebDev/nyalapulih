@@ -1,0 +1,10 @@
+# Uploaded files
+/uploads/*
+!/uploads/.gitkeep
+
+# Environment and secrets
+.env
+.env.*
+
+# Dependencies
+/vendor/
