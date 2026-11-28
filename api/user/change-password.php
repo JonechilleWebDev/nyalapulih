@@ -2,6 +2,7 @@
 
 header("Content-Type: application/json; charset=UTF-8");
 
+require_once __DIR__ . "/../../api/cors.php";
 require_once __DIR__ . "/../../config/database.php";
 require_once __DIR__ . "/../../middleware/auth_middleware.php";
 
