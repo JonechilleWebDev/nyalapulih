@@ -17,4 +17,7 @@ class ApiConfig {
 
   static const String profile =
       '$baseUrl/user/profile.php';
+
+  static const String changePassword =
+      '$baseUrl/user/change-password.php';
 }

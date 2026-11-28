@@ -32,6 +32,30 @@ class AuthRepository {
     return provider.getProfile();
   }
 
+  Future<UserModel> updateProfile({
+    required String name,
+    required String email,
+    String? organization,
+  }) {
+    return provider.updateProfile(
+      name: name,
+      email: email,
+      organization: organization,
+    );
+  }
+  
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) {
+    return provider.changePassword(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+      confirmPassword: confirmPassword,
+    );
+  }
+
   Future<void> logout() {
     return provider.logout();
   }

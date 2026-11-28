@@ -105,8 +105,73 @@ class AuthProvider {
     final data = _handleResponse(response);
 
     return UserModel.fromJson(
-      Map<String, dynamic>.from(data['user']),
+      Map<String, dynamic>.from(data['data']),
     );
+  }
+
+  // UPDATE PROFILE
+  Future<UserModel> updateProfile({
+    required String name,
+    required String email,
+    String? organization,
+  }) async {
+    final token = storage.read(tokenKey);
+
+    if (token == null) {
+      throw Exception('Token autentikasi tidak ditemukan');
+    }
+
+    final response = await client.put(
+      Uri.parse(ApiConfig.profile),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'name': name,
+        'email': email,
+        'organization': organization ?? '',
+      }),
+    );
+
+    final data = _handleResponse(response);
+
+    return UserModel.fromJson(
+      Map<String, dynamic>.from(data['data']),
+    );
+  }
+
+  // CHANGE PASSWORD
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    final token = storage.read(tokenKey);
+
+    if (token == null) {
+      throw Exception('Token autentikasi tidak ditemukan');
+    }
+
+    final response = await client.post(
+      Uri.parse(ApiConfig.changePassword),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'current_password': currentPassword,
+        'new_password': newPassword,
+        'confirm_password': confirmPassword,
+      }),
+    );
+
+    _handleResponse(response);
+
+    // Password berhasil diubah dan token lama dicabut.
+    await storage.remove(tokenKey);
   }
 
   // LOGOUT
