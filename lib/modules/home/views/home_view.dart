@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../app/core/theme/app_colors.dart';
+import '../../profile/bindings/profile_binding.dart';
+import '../../profile/views/profile_view.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
 
-  static const List<Widget> _pages = [
-    _EmptyPage(),
-    _EmptyPage(),
-    _EmptyPage(),
-    _EmptyPage(),
+  static final List<Widget> _pages = [
+    const _EmptyPage(),
+    const _EmptyPage(),
+    const _EmptyPage(),
+    const ProfileTab(),
   ];
 
   @override
@@ -42,25 +44,19 @@ class HomeView extends GetView<HomeController> {
           child: BottomNavigationBar(
             currentIndex: controller.selectedIndex.value,
             onTap: controller.changeTab,
-
             type: BottomNavigationBarType.fixed,
             backgroundColor: AppColors.cardSurface,
             elevation: 0,
-
             selectedItemColor: AppColors.accent,
             unselectedItemColor: AppColors.mutedText,
-
             selectedFontSize: 12,
             unselectedFontSize: 12,
-
             selectedLabelStyle: const TextStyle(
               fontWeight: FontWeight.w700,
             ),
-
             unselectedLabelStyle: const TextStyle(
               fontWeight: FontWeight.w500,
             ),
-
             items: const [
               BottomNavigationBarItem(
                 icon: Icon(Icons.home_outlined),
@@ -87,6 +83,26 @@ class HomeView extends GetView<HomeController> {
         ),
       ),
     );
+  }
+}
+
+class ProfileTab extends StatefulWidget {
+  const ProfileTab({super.key});
+
+  @override
+  State<ProfileTab> createState() => _ProfileTabState();
+}
+
+class _ProfileTabState extends State<ProfileTab> {
+  @override
+  void initState() {
+    super.initState();
+    ProfileBinding().dependencies();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const ProfileView();
   }
 }
 

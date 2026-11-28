@@ -55,7 +55,7 @@ class AuthProvider {
     _handleResponse(response);
   }
 
-  // LOGIN
+  // LOGIN 
   Future<UserModel> login({
     required String email,
     required String password,
@@ -77,7 +77,7 @@ class AuthProvider {
     final String token = data['token'];
 
     final UserModel user = UserModel.fromJson(
-      Map<String, dynamic>.from(data['user']),
+      Map<String, dynamic>.from(data['data']),
     );
 
     // Simpan token autentikasi
